@@ -41,6 +41,7 @@ typedef void(^selectionBlock)(NSUInteger segmentIndex, NSInteger previousIndex);
 -(BOOL)isEnabledForSegmentAtIndex:(NSUInteger)index;
 -(void)setTitle:(id)title forSegmentAtIndex:(NSUInteger)index;
 -(void)setSelectedTextAttributes:(NSDictionary*)attributes;
+-(void)updateSegmentsFormat;
 
 
 @end
