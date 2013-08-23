@@ -7,7 +7,7 @@
 //
 
 #import "PPiFlatSegmentedControl.h"
-#define segment_corner 3.0
+#define segment_corner 5.0
 
 @interface PPiFlatSegmentedControl()
 @property (nonatomic,strong) NSMutableArray *segments;
