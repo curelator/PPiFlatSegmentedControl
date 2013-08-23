@@ -18,7 +18,7 @@
 
 
 @implementation PPiFlatSegmentedControl
-@synthesize  segments=_segments;
+@synthesize segments=_segments;
 @synthesize selectedColor=_selectedColor;
 @synthesize color=_color;
 @synthesize textColor=_textColor;
@@ -96,12 +96,14 @@
 #pragma mark - Actions
 -(void)segmentSelected:(id)sender{
     if(sender){
+        NSInteger previousIndex = _currentSelected;
         NSUInteger selectedIndex=[self.segments indexOfObject:sender];
+        
         [self setEnabled:YES forSegmentAtIndex:selectedIndex];
         
         //Calling block
         if(self.selBlock){
-            self.selBlock(selectedIndex);
+            self.selBlock(selectedIndex, previousIndex);
         }
     }
 }

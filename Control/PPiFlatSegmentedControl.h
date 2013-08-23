@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
 
-typedef void(^selectionBlock)(NSUInteger segmentIndex);
+typedef void(^selectionBlock)(NSUInteger segmentIndex, NSInteger previousIndex);
 
 @interface PPiFlatSegmentedControl : UIView
 
