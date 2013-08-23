@@ -33,6 +33,7 @@ typedef void(^selectionBlock)(NSUInteger segmentIndex, NSInteger previousIndex);
 @property (nonatomic) CGFloat borderWidth;
 @property (nonatomic,strong) NSDictionary *textAttributes;
 @property (nonatomic,strong) NSDictionary *selectedTextAttributes;
+@property (nonatomic) NSInteger currentSelected;
 
 
 - (id)initWithFrame:(CGRect)frame andItems:(NSArray*)items andSelectionBlock:(selectionBlock)block;
