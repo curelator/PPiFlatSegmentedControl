@@ -80,7 +80,7 @@
         self.layer.cornerRadius=segment_corner;
         
         //Default selected 0
-        _currentSelected=0;
+        _currentSelected=-1;
     }
     return self;
 }
