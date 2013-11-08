@@ -67,7 +67,7 @@
             [button.titleLabel setMinimumScaleFactor:0.5];
             [button setContentEdgeInsets:UIEdgeInsetsMake(2, 2, 2, 2)];
             [button addTarget:self action:@selector(segmentSelected:) forControlEvents:UIControlEventTouchUpInside];
-            
+
             //Adding to self view
             [self.segments addObject:button];
             [self addSubview:button];
@@ -161,8 +161,26 @@
     
     //Modifying buttons with current State
     int i = 0;
-    for (UIButton *segment in self.segments){
+    CGFloat minFontSize = 999;
+    for ( UIButton *segment in self.segments ) {
         [segment.titleLabel setFont:self.textFont];
+        
+        //Calculate de minimun fontSize in segmented control to set it to all others buttons in segmented control
+        CGSize titleSize = [segment.titleLabel.text sizeWithFont:segment.titleLabel.font];
+        while ( titleSize.width > segment.titleLabel.frame.size.width ) {
+            [segment.titleLabel setFont:[segment.titleLabel.font fontWithSize:segment.titleLabel.font.pointSize - 1]];
+            titleSize = [segment.titleLabel.text sizeWithFont:segment.titleLabel.font];
+        }
+        
+        if ( segment.titleLabel.font.pointSize < minFontSize )
+            minFontSize = segment.titleLabel.font.pointSize;
+        
+#warning    Method used to calculate computed sizeFont is custom, we will use following code, but now is deprecated in iOS 7
+        /*CGFloat actualFontSize;
+        CGSize  size = [segment.titleLabel.text sizeWithFont:segment.titleLabel.font minFontSize:10 actualFontSize:&actualFontSize forWidth:200 lineBreakMode:segment.titleLabel.lineBreakMode];
+        NSLog(@"actualFontSize: %f", actualFontSize);*/
+        
+        
         if([self.segments indexOfObject:segment]==self.currentSelected){
             //Selected-one
             UIColor *customSelectedColor = [self.selectedColors objectForKey:[NSNumber numberWithInt:i]];
@@ -203,6 +221,11 @@
         }
         segment.titleLabel.textAlignment = NSTextAlignmentCenter;
         i++;
+    }
+    
+    //Modify all fontsize buttons in segmentedcontroll with the same size (the smallest)
+    for ( UIButton *segment in self.segments ) {
+        [segment.titleLabel setFont:[segment.titleLabel.font fontWithSize:minFontSize]];
     }
 }
 -(void)setSelectedColor:(UIColor *)selectedColor{
