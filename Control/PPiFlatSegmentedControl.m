@@ -259,10 +259,6 @@
     _cornerRadius=cornerRadius;
     [self updateSegmentsFormat];
 }
--(void)setAdjustsFontSizeToFitWidth:(BOOL)adjustsFontSizeToFitWidth {
-    _adjustsFontSizeToFitWidth = adjustsFontSizeToFitWidth;
-    [self updateSegmentsFormat];
-}
 -(void)setMinimumFontSize:(NSUInteger)minimumFontSize {
     _minimumFontSize = minimumFontSize;
     [self updateSegmentsFormat];
