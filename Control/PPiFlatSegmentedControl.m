@@ -75,6 +75,7 @@
             button.titleLabel.adjustsLetterSpacingToFitWidth = YES;
             button.titleLabel. numberOfLines = 0; // Dynamic number of lines
             button.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
+            button.titleLabel.textAlignment = NSTextAlignmentCenter;
 
             //Adding to self view
             [self.segments addObject:button];
@@ -99,6 +100,7 @@
     }
     return self;
 }
+
 #pragma mark - Lazy instantiations
 -(NSMutableArray*)segments{
     if(!_segments)_segments=[[NSMutableArray alloc] init];
@@ -120,6 +122,7 @@
     if(!_selectedColors)_selectedColors=[[NSMutableDictionary alloc] init];
     return _selectedColors;
 }
+
 #pragma mark - Actions
 -(void)segmentSelected:(id)sender{
     if(sender){
@@ -134,6 +137,7 @@
         }
     }
 }
+
 #pragma mark - Getters
 /**
  *  Returns if a specified segment is selected
@@ -189,7 +193,7 @@
         CGSize  size = [segment.titleLabel.text sizeWithFont:segment.titleLabel.font minFontSize:10 actualFontSize:&actualFontSize forWidth:200 lineBreakMode:segment.titleLabel.lineBreakMode];
         NSLog(@"actualFontSize: %f", actualFontSize);*/
         
-        
+        //Set colors
         if ( [self.segments indexOfObject:segment]==self.currentSelected ) {
             //Selected-one
             UIColor *customSelectedColor = [self.selectedColors objectForKey:[NSNumber numberWithInt:i]];
@@ -204,6 +208,7 @@
             }
             else if ( self.selectedTextColor ) {
                 [segment setTitleColor:self.selectedTextColor forState:UIControlStateNormal];
+                [segment setTitleColor:self.selectedTextColor forState:UIControlStateHighlighted];
             }
             
             if ( self.selectedTextAttributes ) [segment.titleLabel setValuesForKeysWithDictionary:self.selectedTextAttributes];
@@ -220,12 +225,17 @@
             }
             else if ( self.textColors ) {
                 [segment setTitleColor:self.textColor forState:UIControlStateNormal];
-                [segment setTitleColor:self.textColor forState:UIControlStateHighlighted];
+                [segment setTitleColor:self.selectedTextColor forState:UIControlStateHighlighted];
             }
 
             if ( self.textAttributes ) [segment.titleLabel setValuesForKeysWithDictionary:self.textAttributes];
         }
-        segment.titleLabel.textAlignment = NSTextAlignmentCenter;
+        
+        //Highlighted colors
+        UIColor *selectedColor = [self.selectedColors objectForKey:[NSNumber numberWithInt:i]];
+        if ( !selectedColor ) selectedColor = self.selectedColor;
+        [segment setBackgroundImage:[self imageFromColor:[selectedColor colorWithAlphaComponent:0.8]] forState:UIControlStateHighlighted];
+        
         i++;
     }
     
@@ -351,6 +361,19 @@
     _selectedTextAttributes=selectedTextAttributes;
     [self updateSegmentsFormat];
 }
+
+#pragma mark - Helpers
+- (UIImage *) imageFromColor:(UIColor *)color {
+    CGRect rect = CGRectMake(0, 0, 1, 1);
+    UIGraphicsBeginImageContext(rect.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSetFillColorWithColor(context, [color CGColor]);
+    CGContextFillRect(context, rect);
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return img;
+}
+
 @end
 
 
