@@ -9,6 +9,8 @@
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
 
+#define MULTILINE_TITLE_TAG     91;
+
 typedef void(^selectionBlock)(NSUInteger segmentIndex, NSInteger previousIndex);
 
 @interface PPiFlatSegmentedControl : UIView
@@ -35,6 +37,7 @@ typedef void(^selectionBlock)(NSUInteger segmentIndex, NSInteger previousIndex);
 @property (nonatomic,strong) NSDictionary *textAttributes;
 @property (nonatomic,strong) NSDictionary *selectedTextAttributes;
 @property (nonatomic) NSInteger currentSelected;
+@property (nonatomic) NSUInteger minimumFontSize;
 
 
 - (id)initWithFrame:(CGRect)frame andItems:(NSArray*)items andSelectionBlock:(selectionBlock)block;

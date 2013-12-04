@@ -48,25 +48,33 @@
 - (id)initWithFrame:(CGRect)frame andItems:(NSArray*)items andSelectionBlock:(selectionBlock)block{
     self = [super initWithFrame:frame];
     if (self) {
+        //Defaults
+        _minimumFontSize = 6;
+        
         //Selection block
-        _selBlock=block;
+        _selBlock = block;
         
         //Background Color
-        self.backgroundColor=[UIColor clearColor];
+        self.backgroundColor = [UIColor clearColor];
         
         //Generating segments
-        float buttonWith=frame.size.width/items.count;
-        int i=0;
-        for(NSString *item in items){
-            UIButton *button =[UIButton buttonWithType:UIButtonTypeCustom];
-            button.frame=CGRectMake(buttonWith*i, 0, buttonWith, frame.size.height);
+        float buttonWith = frame.size.width/items.count;
+        int i = 0;
+        for ( NSString *item in items ) {
+            UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+            
+            button.frame = CGRectMake(buttonWith*i, 0, buttonWith, frame.size.height);
+            button.contentEdgeInsets = UIEdgeInsetsMake(2, 2, 2, 2);
+            
+            [button addTarget:self action:@selector(segmentSelected:) forControlEvents:UIControlEventTouchUpInside];
             [button setTitle:item forState:UIControlStateNormal];
             [button setTitle:item forState:UIControlStateHighlighted];
-            [button.titleLabel setAdjustsFontSizeToFitWidth:YES];
-            [button.titleLabel setAdjustsLetterSpacingToFitWidth:YES];
-            [button.titleLabel setMinimumScaleFactor:0.5];
-            [button setContentEdgeInsets:UIEdgeInsetsMake(2, 2, 2, 2)];
-            [button addTarget:self action:@selector(segmentSelected:) forControlEvents:UIControlEventTouchUpInside];
+            
+            //button.titleLabel.adjustsFontSizeToFitWidth = YES;
+            //button.titleLabel.minimumScaleFactor = 0.5;
+            button.titleLabel.adjustsLetterSpacingToFitWidth = YES;
+            button.titleLabel. numberOfLines = 0; // Dynamic number of lines
+            button.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
 
             //Adding to self view
             [self.segments addObject:button];
@@ -74,8 +82,8 @@
             
             
             //Adding separator
-            if(i!=0){
-                UIView *separatorView=[[UIView alloc] initWithFrame:CGRectMake(i*buttonWith, 0, self.borderWidth, frame.size.height)];
+            if ( i != 0 ) {
+                UIView *separatorView = [[UIView alloc] initWithFrame:CGRectMake(i*buttonWith, 0, self.borderWidth, frame.size.height)];
                 [self addSubview:separatorView];
                 [self.separators addObject:separatorView];
             }
@@ -84,10 +92,10 @@
         }
         
         //Applying corners
-        self.layer.masksToBounds=YES;
+        self.layer.masksToBounds = YES;
         
         //Default selected 0
-        _currentSelected=-1;
+        _currentSelected = -1;
     }
     return self;
 }
@@ -167,13 +175,14 @@
         
         //Calculate de minimun fontSize in segmented control to set it to all others buttons in segmented control
         CGSize titleSize = [segment.titleLabel.text sizeWithFont:segment.titleLabel.font];
-        while ( titleSize.width > segment.titleLabel.frame.size.width ) {
+        while ( titleSize.width > segment.titleLabel.frame.size.width && segment.titleLabel.font.pointSize > _minimumFontSize ) {
             [segment.titleLabel setFont:[segment.titleLabel.font fontWithSize:segment.titleLabel.font.pointSize - 1]];
             titleSize = [segment.titleLabel.text sizeWithFont:segment.titleLabel.font];
         }
         
-        if ( segment.titleLabel.font.pointSize < minFontSize )
+        if ( segment.titleLabel.font.pointSize < minFontSize ) {
             minFontSize = segment.titleLabel.font.pointSize;
+        }
         
 #warning    Method used to calculate computed sizeFont is custom, we will use following code, but now is deprecated in iOS 7
         /*CGFloat actualFontSize;
@@ -181,13 +190,11 @@
         NSLog(@"actualFontSize: %f", actualFontSize);*/
         
         
-        if([self.segments indexOfObject:segment]==self.currentSelected){
+        if ( [self.segments indexOfObject:segment]==self.currentSelected ) {
             //Selected-one
             UIColor *customSelectedColor = [self.selectedColors objectForKey:[NSNumber numberWithInt:i]];
-            if ( customSelectedColor )
-                [segment setBackgroundColor:customSelectedColor];
-            else if ( self.selectedColor )
-                [segment setBackgroundColor:self.selectedColor];
+            if ( customSelectedColor ) [segment setBackgroundColor:customSelectedColor];
+            else if ( self.selectedColor ) [segment setBackgroundColor:self.selectedColor];
             
             UIColor *customColor =[self.selectedTextColors objectForKey:[NSNumber numberWithInt:i]];
             if ( customColor ) {
@@ -199,11 +206,11 @@
                 [segment setTitleColor:self.selectedTextColor forState:UIControlStateNormal];
             }
             
-            if(self.selectedTextAttributes)
-                [segment.titleLabel setValuesForKeysWithDictionary:self.selectedTextAttributes];
-        }else{
+            if ( self.selectedTextAttributes ) [segment.titleLabel setValuesForKeysWithDictionary:self.selectedTextAttributes];
+        }
+        else {
             //Non selected
-            if(self.color)[segment setBackgroundColor:self.color];
+            if ( self.color ) [segment setBackgroundColor:self.color];
             
             UIColor *customColor =[self.textColors objectForKey:[NSNumber numberWithInt:i]];
             if ( customColor ) {
@@ -216,8 +223,7 @@
                 [segment setTitleColor:self.textColor forState:UIControlStateHighlighted];
             }
 
-            if(self.textAttributes)
-                [segment.titleLabel setValuesForKeysWithDictionary:self.textAttributes];
+            if ( self.textAttributes ) [segment.titleLabel setValuesForKeysWithDictionary:self.textAttributes];
         }
         segment.titleLabel.textAlignment = NSTextAlignmentCenter;
         i++;
@@ -228,6 +234,7 @@
         [segment.titleLabel setFont:[segment.titleLabel.font fontWithSize:minFontSize]];
     }
 }
+
 -(void)setSelectedColor:(UIColor *)selectedColor{
     _selectedColor=selectedColor;
     [self updateSegmentsFormat];
@@ -250,6 +257,14 @@
 }
 -(void)setCornerRadius:(CGFloat)cornerRadius {
     _cornerRadius=cornerRadius;
+    [self updateSegmentsFormat];
+}
+-(void)setAdjustsFontSizeToFitWidth:(BOOL)adjustsFontSizeToFitWidth {
+    _adjustsFontSizeToFitWidth = adjustsFontSizeToFitWidth;
+    [self updateSegmentsFormat];
+}
+-(void)setMinimumFontSize:(NSUInteger)minimumFontSize {
+    _minimumFontSize = minimumFontSize;
     [self updateSegmentsFormat];
 }
 
