@@ -234,7 +234,7 @@
         //Highlighted colors
         UIColor *selectedColor = [self.selectedColors objectForKey:[NSNumber numberWithInt:i]];
         if ( !selectedColor ) selectedColor = self.selectedColor;
-        [segment setBackgroundImage:[self imageFromColor:[selectedColor colorWithAlphaComponent:0.8]] forState:UIControlStateHighlighted];
+        [segment setBackgroundImage:[self imageFromColor:[selectedColor colorWithAlphaComponent:0.5]] forState:UIControlStateHighlighted];
         
         i++;
     }
