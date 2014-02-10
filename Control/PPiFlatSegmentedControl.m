@@ -76,7 +76,7 @@
             button.titleLabel. numberOfLines = 0; // Dynamic number of lines
             button.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
             button.titleLabel.textAlignment = NSTextAlignmentCenter;
-
+            
             //Adding to self view
             [self.segments addObject:button];
             [self addSubview:button];
@@ -190,8 +190,8 @@
         
 #warning    Method used to calculate computed sizeFont is custom, we will use following code, but now is deprecated in iOS 7
         /*CGFloat actualFontSize;
-        CGSize  size = [segment.titleLabel.text sizeWithFont:segment.titleLabel.font minFontSize:10 actualFontSize:&actualFontSize forWidth:200 lineBreakMode:segment.titleLabel.lineBreakMode];
-        NSLog(@"actualFontSize: %f", actualFontSize);*/
+         CGSize  size = [segment.titleLabel.text sizeWithFont:segment.titleLabel.font minFontSize:10 actualFontSize:&actualFontSize forWidth:200 lineBreakMode:segment.titleLabel.lineBreakMode];
+         NSLog(@"actualFontSize: %f", actualFontSize);*/
         
         //Set colors
         if ( [self.segments indexOfObject:segment]==self.currentSelected ) {
@@ -221,13 +221,13 @@
             if ( customColor ) {
                 [segment setTitleColor:customColor forState:UIControlStateNormal];
                 [segment setTitleColor:customColor forState:UIControlStateHighlighted];
-
+                
             }
             else if ( self.textColors ) {
                 [segment setTitleColor:self.textColor forState:UIControlStateNormal];
                 [segment setTitleColor:self.selectedTextColor forState:UIControlStateHighlighted];
             }
-
+            
             if ( self.textAttributes ) [segment.titleLabel setValuesForKeysWithDictionary:self.textAttributes];
         }
         
@@ -341,17 +341,16 @@
     _borderColor=borderColor;
     [self updateSegmentsFormat];
 }
+
 /**
  *  Method for select/unselect a segment
  *
- *  @param  enabled BOOL if the given segment has to be enabled/disabled ( currently disable option is not enabled )
+ *  @param  enabled BOOL if the given segment has to be enabled/disabled
  *  @param  segment Segment to be selected/unselected
  */
 -(void)setEnabled:(BOOL)enabled forSegmentAtIndex:(NSUInteger)segment{
-    if(enabled){
-        self.currentSelected=segment;
-        [self updateSegmentsFormat];
-    }
+    self.currentSelected = enabled ? segment : -1;
+    [self updateSegmentsFormat];
 }
 -(void)setTextAttributes:(NSDictionary *)textAttributes{
     _textAttributes=textAttributes;
