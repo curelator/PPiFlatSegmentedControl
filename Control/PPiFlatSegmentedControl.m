@@ -14,6 +14,7 @@
 @property (nonatomic,strong) NSMutableDictionary *textColors;
 @property (nonatomic,strong) NSMutableDictionary *selectedTextColors;
 @property (nonatomic,strong) NSMutableDictionary *selectedColors;
+@property (nonatomic,strong) NSMutableDictionary *highlightedColors;
 @property (nonatomic,copy) selectionBlock selBlock;
 @end
 
@@ -102,29 +103,33 @@
 }
 
 #pragma mark - Lazy instantiations
--(NSMutableArray*)segments{
+- (NSMutableArray*)segments{
     if(!_segments)_segments=[[NSMutableArray alloc] init];
     return _segments;
 }
--(NSMutableArray*)separators{
+- (NSMutableArray*)separators{
     if(!_separators)_separators=[[NSMutableArray alloc] init];
     return _separators;
 }
--(NSMutableDictionary*)textColors{
+- (NSMutableDictionary*)textColors{
     if(!_textColors)_textColors=[[NSMutableDictionary alloc] init];
     return _textColors;
 }
--(NSMutableDictionary*)selectedTextColors{
+- (NSMutableDictionary*)selectedTextColors{
     if(!_selectedTextColors)_selectedTextColors=[[NSMutableDictionary alloc] init];
     return _selectedTextColors;
 }
--(NSMutableDictionary*)selectedColors{
+- (NSMutableDictionary*)selectedColors{
     if(!_selectedColors)_selectedColors=[[NSMutableDictionary alloc] init];
     return _selectedColors;
 }
+- (NSMutableDictionary*)highlightedColors{
+    if(!_highlightedColors)_highlightedColors=[[NSMutableDictionary alloc] init];
+    return _highlightedColors;
+}
 
 #pragma mark - Actions
--(void)segmentSelected:(id)sender{
+- (void)segmentSelected:(id)sender{
     if(sender){
         NSInteger previousIndex = _currentSelected;
         NSUInteger selectedIndex=[self.segments indexOfObject:sender];
@@ -146,12 +151,12 @@
  *
  *  @return BOOL selected
  */
--(BOOL)isEnabledForSegmentAtIndex:(NSUInteger)index{
+- (BOOL)isEnabledForSegmentAtIndex:(NSUInteger)index{
     return (index==self.currentSelected);
 }
 
 #pragma mark - Setters
--(void)updateSegmentsFormat{
+- (void)updateSegmentsFormat{
     //Setting border color
     if(self.borderColor){
         self.layer.borderWidth=self.borderWidth;
@@ -175,6 +180,7 @@
     int i = 0;
     CGFloat minFontSize = 999;
     for ( UIButton *segment in self.segments ) {
+        NSNumber *key = [NSNumber numberWithInt:i];
         [segment.titleLabel setFont:self.textFont];
         
         //Calculate de minimun fontSize in segmented control to set it to all others buttons in segmented control
@@ -196,11 +202,11 @@
         //Set colors
         if ( [self.segments indexOfObject:segment]==self.currentSelected ) {
             //Selected-one
-            UIColor *customSelectedColor = [self.selectedColors objectForKey:[NSNumber numberWithInt:i]];
+            UIColor *customSelectedColor = [self.selectedColors objectForKey:key];
             if ( customSelectedColor ) [segment setBackgroundColor:customSelectedColor];
             else if ( self.selectedColor ) [segment setBackgroundColor:self.selectedColor];
             
-            UIColor *customColor =[self.selectedTextColors objectForKey:[NSNumber numberWithInt:i]];
+            UIColor *customColor =[self.selectedTextColors objectForKey:key];
             if ( customColor ) {
                 [segment setTitleColor:customColor forState:UIControlStateNormal];
                 [segment setTitleColor:customColor forState:UIControlStateHighlighted];
@@ -217,7 +223,7 @@
             //Non selected
             if ( self.color ) [segment setBackgroundColor:self.color];
             
-            UIColor *customColor =[self.textColors objectForKey:[NSNumber numberWithInt:i]];
+            UIColor *customColor =[self.textColors objectForKey:key];
             if ( customColor ) {
                 [segment setTitleColor:customColor forState:UIControlStateNormal];
                 [segment setTitleColor:customColor forState:UIControlStateHighlighted];
@@ -232,9 +238,17 @@
         }
         
         //Highlighted colors
-        UIColor *selectedColor = [self.selectedColors objectForKey:[NSNumber numberWithInt:i]];
-        if ( !selectedColor ) selectedColor = self.selectedColor;
-        [segment setBackgroundImage:[self imageFromColor:[selectedColor colorWithAlphaComponent:0.5]] forState:UIControlStateHighlighted];
+        
+        //try with highlightedColor for especific item
+        UIColor *highlightedColor                   = [self.highlightedColors objectForKey:key];
+        //if not, try with general highlightedColor
+        if ( !highlightedColor ) highlightedColor   = self.highlightedColor;
+        //if not, try with selectedColor with alpha for especific item
+        if ( !highlightedColor ) highlightedColor   = [[self.selectedColors objectForKey:key] colorWithAlphaComponent:0.5];
+        //if not, use general selectedColor with alpha
+        if ( !highlightedColor ) highlightedColor   = [self.selectedColor colorWithAlphaComponent:0.5];
+        
+        [segment setBackgroundImage:[self imageFromColor:highlightedColor] forState:UIControlStateHighlighted];
         
         i++;
     }
@@ -245,31 +259,35 @@
     }
 }
 
--(void)setSelectedColor:(UIColor *)selectedColor{
+- (void)setSelectedColor:(UIColor *)selectedColor{
     _selectedColor=selectedColor;
     [self updateSegmentsFormat];
 }
--(void)setColor:(UIColor *)color{
+- (void)setColor:(UIColor *)color{
     _color=color;
     [self updateSegmentsFormat];
 }
--(void)setTextColor:(UIColor *)textColor{
+- (void)setHighlightedColor:(UIColor *)highlightedColor{
+    _highlightedColor=highlightedColor;
+    [self updateSegmentsFormat];
+}
+- (void)setTextColor:(UIColor *)textColor{
     _textColor=textColor;
     [self updateSegmentsFormat];
 }
--(void)setSelectedTextColor:(UIColor *)selectedTextColor{
+- (void)setSelectedTextColor:(UIColor *)selectedTextColor{
     _selectedTextColor=selectedTextColor;
     [self updateSegmentsFormat];
 }
--(void)setBorderWidth:(CGFloat)borderWidth{
+- (void)setBorderWidth:(CGFloat)borderWidth{
     _borderWidth=borderWidth;
     [self updateSegmentsFormat];
 }
--(void)setCornerRadius:(CGFloat)cornerRadius {
+- (void)setCornerRadius:(CGFloat)cornerRadius {
     _cornerRadius=cornerRadius;
     [self updateSegmentsFormat];
 }
--(void)setMinimumFontSize:(NSUInteger)minimumFontSize {
+- (void)setMinimumFontSize:(NSUInteger)minimumFontSize {
     _minimumFontSize = minimumFontSize;
     [self updateSegmentsFormat];
 }
@@ -281,7 +299,18 @@
  *  @param  index   Index of the segment that has to be modified
  */
 
--(void)setTitle:(id)title forSegmentAtIndex:(NSUInteger)index{
+- (void)setTextFont:(UIFont *)textFont{
+    _textFont=textFont;
+    [self updateSegmentsFormat];
+}
+
+- (void)setBorderColor:(UIColor *)borderColor{
+    //Setting boerder color to all view
+    _borderColor=borderColor;
+    [self updateSegmentsFormat];
+}
+
+- (void)setTitle:(id)title forSegmentAtIndex:(NSUInteger)index{
     //Getting the Segment
     if(index<self.segments.count){
         UIButton *segment=self.segments[index];
@@ -293,13 +322,14 @@
     }
 }
 
+
 - (void)setTextColor:(UIColor *)color forSegmentAtIndex:(NSUInteger)index {
     if ( index < self.segments.count ) {
         [self.textColors setObject:color forKey:[NSNumber numberWithInteger:index]];
         [self updateSegmentsFormat];
     }
 }
-- (void)removeCustomTextColorForSegmentAtIndex:(NSUInteger)index {
+- (void)removeTextColorForSegmentAtIndex:(NSUInteger)index {
     if ( index < self.segments.count ) {
         [self.textColors removeObjectForKey:[NSNumber numberWithInteger:index]];
         [self updateSegmentsFormat];
@@ -312,7 +342,7 @@
         [self updateSegmentsFormat];
     }
 }
-- (void)removeCustomSelectedTextColorForSegmentAtIndex:(NSUInteger)index {
+- (void)removeSelectedTextColorForSegmentAtIndex:(NSUInteger)index {
     if ( index < self.segments.count ) {
         [self.selectedTextColors removeObjectForKey:[NSNumber numberWithInteger:index]];
         [self updateSegmentsFormat];
@@ -325,22 +355,26 @@
         [self updateSegmentsFormat];
     }
 }
-- (void)removeCustomSelectedColorForSegmentAtIndex:(NSUInteger)index {
+- (void)removeSelectedColorForSegmentAtIndex:(NSUInteger)index {
     if ( index < self.segments.count ) {
         [self.selectedColors removeObjectForKey:[NSNumber numberWithInteger:index]];
         [self updateSegmentsFormat];
     }
 }
 
--(void)setTextFont:(UIFont *)textFont{
-    _textFont=textFont;
-    [self updateSegmentsFormat];
+- (void)setHighlightedColor:(UIColor *)color forSegmentAtIndex:(NSUInteger)index {
+    if ( index < self.segments.count ) {
+        [self.highlightedColors setObject:color forKey:[NSNumber numberWithInteger:index]];
+        [self updateSegmentsFormat];
+    }
 }
--(void)setBorderColor:(UIColor *)borderColor{
-    //Setting boerder color to all view
-    _borderColor=borderColor;
-    [self updateSegmentsFormat];
+- (void)removeHighlightedColorForSegmentAtIndex:(NSUInteger)index {
+    if ( index < self.segments.count ) {
+        [self.highlightedColors removeObjectForKey:[NSNumber numberWithInteger:index]];
+        [self updateSegmentsFormat];
+    }
 }
+
 
 /**
  *  Method for select/unselect a segment
@@ -348,15 +382,15 @@
  *  @param  enabled BOOL if the given segment has to be enabled/disabled
  *  @param  segment Segment to be selected/unselected
  */
--(void)setEnabled:(BOOL)enabled forSegmentAtIndex:(NSUInteger)segment{
+- (void)setEnabled:(BOOL)enabled forSegmentAtIndex:(NSUInteger)segment{
     self.currentSelected = enabled ? segment : -1;
     [self updateSegmentsFormat];
 }
--(void)setTextAttributes:(NSDictionary *)textAttributes{
+- (void)setTextAttributes:(NSDictionary *)textAttributes{
     _textAttributes=textAttributes;
     [self updateSegmentsFormat];
 }
--(void)setSelectedTextAttributes:(NSDictionary *)selectedTextAttributes{
+- (void)setSelectedTextAttributes:(NSDictionary *)selectedTextAttributes{
     _selectedTextAttributes=selectedTextAttributes;
     [self updateSegmentsFormat];
 }

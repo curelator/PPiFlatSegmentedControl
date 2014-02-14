@@ -26,10 +26,13 @@ typedef void(^selectionBlock)(NSUInteger segmentIndex, NSInteger previousIndex);
  * borderColor: Color "" ""
  */
 
-@property (nonatomic,strong) UIColor *selectedColor;
 @property (nonatomic,strong) UIColor *color;
+@property (nonatomic,strong) UIColor *selectedColor;
+@property (nonatomic,strong) UIColor *highlightedColor;
+
 @property (nonatomic,strong) UIColor *textColor;
 @property (nonatomic,strong) UIColor *selectedTextColor;
+
 @property (nonatomic,strong) UIFont *textFont;
 @property (nonatomic,strong) UIColor *borderColor;
 @property (nonatomic) CGFloat borderWidth;
@@ -41,17 +44,27 @@ typedef void(^selectionBlock)(NSUInteger segmentIndex, NSInteger previousIndex);
 
 
 - (id)initWithFrame:(CGRect)frame andItems:(NSArray*)items andSelectionBlock:(selectionBlock)block;
--(void)setEnabled:(BOOL)enabled forSegmentAtIndex:(NSUInteger)segment;
--(BOOL)isEnabledForSegmentAtIndex:(NSUInteger)index;
--(void)setTitle:(id)title forSegmentAtIndex:(NSUInteger)index;
+
+- (void)setEnabled:(BOOL)enabled forSegmentAtIndex:(NSUInteger)segment;
+- (BOOL)isEnabledForSegmentAtIndex:(NSUInteger)index;
+
+- (void)setTitle:(id)title forSegmentAtIndex:(NSUInteger)index;
+
 - (void)setTextColor:(UIColor *)color forSegmentAtIndex:(NSUInteger)index;
-- (void)removeCustomTextColorForSegmentAtIndex:(NSUInteger)index;
+- (void)removeTextColorForSegmentAtIndex:(NSUInteger)index;
+
 - (void)setSelectedTextColor:(UIColor *)color forSegmentAtIndex:(NSUInteger)index;
-- (void)removeCustomSelectedTextColorForSegmentAtIndex:(NSUInteger)index;
+- (void)removeSelectedTextColorForSegmentAtIndex:(NSUInteger)index;
+
 - (void)setSelectedColor:(UIColor *)color forSegmentAtIndex:(NSUInteger)index;
-- (void)removeCustomSelectedColorForSegmentAtIndex:(NSUInteger)index;
--(void)setSelectedTextAttributes:(NSDictionary*)attributes;
--(void)updateSegmentsFormat;
+- (void)removeSelectedColorForSegmentAtIndex:(NSUInteger)index;
+
+- (void)setHighlightedColor:(UIColor *)color forSegmentAtIndex:(NSUInteger)index;
+- (void)removeHighlightedColorForSegmentAtIndex:(NSUInteger)index;
+
+- (void)setSelectedTextAttributes:(NSDictionary*)attributes;
+
+- (void)updateSegmentsFormat;
 
 
 @end
